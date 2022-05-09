@@ -31,7 +31,7 @@ function createToken(id: number) {
 
     //@ts-ignore
     const token = jwt.sign({ id: id }, process.env.MY_SECRET, {
-        expiresIn: '3days',
+        expiresIn: '3days'
     });
 
     return token;
@@ -45,7 +45,7 @@ async function getUserFromToken(token: string) {
 
     const user = await prisma.user.findUnique({
         // @ts-ignore
-        where: { id: data.id },
+        where: { id: data.id }
     });
 
     return user;
@@ -54,18 +54,17 @@ async function getUserFromToken(token: string) {
 
 app.post('/sign-up', async (req, res) => {
 
-    const { email, password, userName } = req.body;
+    const { email, password, userName, firstName, lastName, isAdmin } = req.body;
 
     try {
 
         const hash = bcrypt.hashSync(password);
         
         const user = await prisma.user.create({
-            data: { email: email, password: hash, userName: userName },
+            //@ts-ignore
+            data: { email: email, password: hash, userName: userName, firstName: firstName, lastName: lastName, isAdmin: isAdmin },
         });
 
-        //@ts-ignore
-        user.favMovies = [];
         res.send({ user, token: createToken(user.id) });
 
     } 
@@ -81,37 +80,20 @@ app.post('/login', async (req, res) => {
 
     const { email, password } = req.body;
 
-    // try {
     const user = await prisma.user.findUnique({
-        where: { email: email },
+        where: { email: email }
     });
 
     // @ts-ignore
     const passwordMatches = bcrypt.compareSync(password, user.password);
     
     if (user && passwordMatches) {
-
-        const favorites = await prisma.favorite.findMany({
-            where: { userId: user?.id },
-        });
-
-        //@ts-ignore
-        user.favMovies = await prisma.movie.findMany({
-            where: { id: { in: favorites.map((f) => f.movieId) } },
-            include: { genres: { include: { genre: true } } },
-        });
-
         res.send({ user, token: createToken(user.id) });
-
     } 
     
     else {
         throw Error('Boom');
     }
-
-    // } catch (err) {
-    //     res.status(400).send({ error: 'Email/password invalid.' });
-    // }
 
 });
 
@@ -120,22 +102,25 @@ app.get('/validate', async (req, res) => {
     const token = req.headers.authorization || '';
 
     try {
-
         const user = await getUserFromToken(token);
-
-        //favourite movies
-        const favorites = await prisma.favorite.findMany({
-            where: { userId: user?.id },
-        });
-
-        //@ts-ignore
-        user.favMovies = await prisma.movie.findMany({
-            where: { id: { in: favorites.map((f) => f.movieId) } },
-            include: { genres: { include: { genre: true } } },
-        });
-
         res.send(user);
+    } 
+    
+    catch (err) {
+        // @ts-ignore
+        res.status(400).send({ error: err.message });
+    }
 
+});
+// #endregion
+
+
+// #region "REST API endpoints"
+app.get('/users', async (req, res) => {
+
+    try {
+        const users = await prisma.user.findMany();
+        res.send(users);
     } 
     
     catch (err) {
