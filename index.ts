@@ -45,7 +45,8 @@ async function getUserFromToken(token: string) {
 
     const user = await prisma.user.findUnique({
         // @ts-ignore
-        where: { id: data.id }
+        where: { id: data.id },
+        include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true }
     });
 
     return user;
@@ -75,7 +76,9 @@ app.post('/sign-up', async (req, res) => {
                 phone: phone,
                 avatar: avatar, 
                 isDoctor: isDoctor
-            }
+            },
+
+            include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true }
 
         });
 
@@ -95,18 +98,19 @@ app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     const user = await prisma.user.findUnique({
-        where: { email: email }
+      where: { email: email },
+      include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true }
     });
 
     // @ts-ignore
     const passwordMatches = bcrypt.compareSync(password, user.password);
     
     if (user && passwordMatches) {
-        res.send({ user, token: createToken(user.id) });
+      res.send({ user, token: createToken(user.id) });
     } 
     
     else {
-        throw Error('Boom');
+      res.status(404).send({ error: "user or password incorrect" });
     }
 
 });
