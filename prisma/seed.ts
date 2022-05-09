@@ -60,6 +60,7 @@ const bids = [
     {
         id: 1,
         appointment_id: 1,
+        bids: 5,
         user_id: 2
     }
 ]

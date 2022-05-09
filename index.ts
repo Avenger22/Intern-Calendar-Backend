@@ -131,6 +131,7 @@ app.get('/validate', async (req, res) => {
 
 // #region "REST API endpoints"
 
+
 // #region "Users as normal users endpoints"
 app.get('/users', async (req, res) => {
 
@@ -367,6 +368,65 @@ app.get("/appointements/:id", async (req, res) => {
     }
 
 });
+
+app.post('/appointement', async (req, res) => {
+
+  const { price, deadline, title, description, status, category_id } = req.body
+
+  const token = req.headers.authorization || ''
+
+  try {
+
+    const user: any = await getUserFromToken(token)
+
+    if (user?.isDoctor) {
+      const project = await prisma.appointement.create({
+        data: { price, deadline, title, description, status, doctor_id: user.id, category_id: category_id }
+      })
+
+      res.send(project)
+
+    } 
+    
+    else {
+      res.status(401).send("You're not authorized to create a project")
+    }
+
+  }
+
+  catch (err) {
+    //@ts-ignore
+    res.status(400).send({ error: err.message })
+  }
+
+})
+
+app.patch('/appointement/:id', async (req, res) => {
+
+    const { user_id } = req.body
+
+    const id = Number(req.params.id)
+
+    try {
+
+      let project = await prisma.appointement.update({ where: { id }, data: { user_id } })
+      
+      if (project) {
+        res.send(project)
+      } 
+      
+      else {
+        res.status(404).send({ error: "Project not found" })
+      }
+
+    } 
+    
+    catch (err) {
+      //@ts-ignore
+      res.status(400).send({ error: err.message })
+    }
+
+})
 // #endregion
 
 // #region "Bids endpoints"
@@ -427,6 +487,53 @@ app.get("/bids/:id", async (req, res) => {
     }
 
 });
+
+app.delete('/bids/:id', async (req, res) => {
+
+    const id = Number(req.params.id)
+
+    try {
+      const bid = await prisma.bid.delete({ where: { id } })
+      res.send(bid)
+    }
+
+    catch (err) {
+      //@ts-ignore
+      res.status(400).send({ error: err.message })
+    }
+
+})
+
+app.post('/bids', async (req, res) => {
+
+    const { appointment_id, bids, user_id } = req.body
+
+    try {
+
+      const bid = await prisma.bid.create({
+        data: { appointment_id, bids, user_id }
+      })
+
+      res.send(bid)
+
+    }
+
+    catch (err) {
+      //@ts-ignore
+      res.status(400).send({ error: err.message })
+    }
+
+})
+
+app.get('/bids/:project_id', async (req, res) => {
+
+    const appointment_id = Number(req.params.project_id)
+    const bid = await prisma.bid.findMany({ include: { normalUser: true }, where: { appointment_id } })
+  
+    res.send(bid)
+  
+})
 // #endregion
+
 
 // #endregion

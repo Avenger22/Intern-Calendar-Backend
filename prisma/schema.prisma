@@ -66,6 +66,8 @@ model Bid {
   appointement  Appointement @relation(fields: [appointment_id], references: [id])
   appointment_id   Int
   
+  bids         Int
+
   normalUser   User         @relation(fields: [user_id], references: [id])
   user_id      Int
 }
