@@ -95,23 +95,32 @@ app.post('/sign-up', async (req, res) => {
 
 app.post('/login', async (req, res) => {
 
-    const { email, password } = req.body;
+    const { emailLogin, password } = req.body;
 
-    const user = await prisma.user.findFirst({
-      where: { email: email },
+    const emailInput = emailLogin
+
+    console.log(emailLogin)
+    console.log(password)
+
+    const user: any = await prisma.user.findFirst({
+      where: { email: emailInput},
       include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true }
     });
 
     // @ts-ignore
     const passwordMatches = bcrypt.compareSync(password, user.password);
+
+    console.log(passwordMatches)
     
     if (user && passwordMatches) {
       res.send({ user, token: createToken(user.id) });
     } 
     
     else {
+      console.log(user)
       res.status(404).send({ error: "user or password incorrect" });
     }
+
     //weird bug like only 1 user logs in
 
 });
