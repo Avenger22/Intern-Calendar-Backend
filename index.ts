@@ -75,7 +75,7 @@ app.post('/sign-up', async (req, res) => {
                 bio: bio,
                 phone: phone,
                 avatar: avatar, 
-                isDoctor: isDoctor
+                isDoctor: isDoctor === "true" ? true : false
             },
 
             include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true }
@@ -97,7 +97,7 @@ app.post('/login', async (req, res) => {
 
     const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { email: email },
       include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true }
     });
@@ -117,7 +117,8 @@ app.post('/login', async (req, res) => {
 
 app.get('/validate', async (req, res) => {
 
-    const token = req.headers.authorization || '';
+    // const token = req.headers.authorization || '';
+    const token = String(req.query.token)
 
     try {
         const user = await getUserFromToken(token);
@@ -515,6 +516,7 @@ app.post('/bids', async (req, res) => {
     try {
 
       const bid = await prisma.bid.create({
+        //@ts-ignore
         data: { appointment_id, bids, user_id }
       })
 
