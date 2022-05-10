@@ -107,21 +107,29 @@ app.post('/login', async (req, res) => {
       include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true }
     });
 
-    // @ts-ignore
-    const passwordMatches = bcrypt.compareSync(password, user.password);
-
-    console.log(passwordMatches)
-    
-    if (user && passwordMatches) {
-      res.send({ user, token: createToken(user.id) });
-    } 
-    
-    else {
-      console.log(user)
+    if (user?.password === undefined || user?.password === null || !user) {
       res.status(404).send({ error: "user or password incorrect" });
     }
 
-    //weird bug like only 1 user logs in
+    else {
+
+      // @ts-ignore
+      const passwordMatches = bcrypt.compareSync(password, user.password);
+
+      // console.log(passwordMatches)
+      
+      if (user && passwordMatches) {
+        res.send({ user, token: createToken(user.id) });
+      } 
+      
+      else {
+        // console.log(user)
+        res.status(404).send({ error: "user or password incorrect" });
+      }
+
+      //weird bug like only 1 user logs in
+
+    }
 
 });
 
