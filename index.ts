@@ -97,13 +97,13 @@ app.post('/login', async (req, res) => {
 
     const { emailLogin, password } = req.body;
 
-    const emailInput = emailLogin
+    // const emailInput = emailLogin
 
-    console.log(emailLogin)
-    console.log(password)
+    // console.log(emailLogin)
+    // console.log(password)
 
     const user: any = await prisma.user.findFirst({
-      where: { email: emailInput},
+      where: { email: emailLogin},
       include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true }
     });
 
