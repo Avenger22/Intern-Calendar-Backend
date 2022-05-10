@@ -376,7 +376,7 @@ app.get("/appointements/:id", async (req, res) => {
 
 app.post('/appointement', async (req, res) => {
 
-  const { price, deadline, title, description, status, category_id } = req.body
+  const { price, startDate, endDate, title, description, status, category_id } = req.body
 
   const token = req.headers.authorization || ''
 
@@ -386,7 +386,7 @@ app.post('/appointement', async (req, res) => {
 
     if (user?.isDoctor) {
       const project = await prisma.appointement.create({
-        data: { price, deadline, title, description, status, doctor_id: user.id, category_id: category_id }
+        data: { price, startDate, endDate, title, description, status, doctor_id: user.id, category_id: category_id }
       })
 
       res.send(project)

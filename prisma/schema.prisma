@@ -43,7 +43,8 @@ model Appointement {
   id          Int      @id @default(autoincrement())
 
   price       Int
-  deadline    String
+  startDate   String   @default("")
+  endDate     String   @default("")
   title       String
   description String
   status      Int

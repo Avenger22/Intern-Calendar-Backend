@@ -38,7 +38,8 @@ const appointments = [
     {
         id: 1,
         price: 350,
-        deadline: String(Date.now()),
+        startDate: "11/05/2022",
+        endDate: "13/05/2022",
         title: "Kidney visit",
         description: "Vizite tek doktorri kam probleme me kidney",
         status: 2,
