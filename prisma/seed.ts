@@ -22,8 +22,8 @@ const users = [
     {
         id: 2,
         userName: 'atleti22',
-        email: 'atletiko@email.com',
-        password: bcrypt.hashSync('atleti123', 8),
+        email: 'atletikomadrid@email.com',
+        password: bcrypt.hashSync('atleti1234', 8),
         firstName: "Atletiko",
         lastName: "Madrid",
         address: "Rr Bardhyl",
@@ -31,6 +31,32 @@ const users = [
         phone: "0693454532",
         avatar: "avatar2.jpg",
         isDoctor: false
+    },
+    {
+        id: 3,
+        userName: 'brajan',
+        email: 'brajanhasmeta@email.com',
+        password: bcrypt.hashSync('brajan1234', 8),
+        firstName: "brajan",
+        lastName: "hasmeta",
+        address: "Rr Bardhyl e re",
+        bio: "I am brajan hasmeta",
+        phone: "0693454532",
+        avatar: "avatar3.jpg",
+        isDoctor: false
+    },
+    {
+        id: 4,
+        userName: 'leoMessi22',
+        email: 'leomessi@email.com',
+        password: bcrypt.hashSync('messi1234', 8),
+        firstName: "leo",
+        lastName: "messi",
+        address: "Rr Bardhyl e re",
+        bio: "I am leo",
+        phone: "0693454532",
+        avatar: "avatare.jpg",
+        isDoctor: true
     }
 ];
 

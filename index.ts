@@ -31,7 +31,7 @@ function createToken(id: number) {
 
     //@ts-ignore
     const token = jwt.sign({ id: id }, process.env.MY_SECRET, {
-        expiresIn: '3days'
+      expiresIn: '1days'
     });
 
     return token;
@@ -112,6 +112,7 @@ app.post('/login', async (req, res) => {
     else {
       res.status(404).send({ error: "user or password incorrect" });
     }
+    //weird bug like only 1 user logs in
 
 });
 
