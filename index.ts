@@ -108,7 +108,7 @@ app.post('/login', async (req, res) => {
     });
 
     if (user?.password === undefined || user?.password === null || !user) {
-      res.status(404).send({ error: "user or password incorrect" });
+      res.status(404).send({ user, token: "" });
     }
 
     else {
