@@ -163,7 +163,7 @@ app.get('/users', async (req, res) => {
         const users = await prisma.user.findMany({
 
             include: {
-                postedAppointements: true,
+                postedAppointements: true
             },
 
             where: {
@@ -193,7 +193,7 @@ app.get("/users/:id", async (req, res) => {
       const employee: any = await prisma.user.findUnique({
         where: { id },
         //@ts-ignore
-        include: { acceptedAppointemets: true }
+        include: { acceptedAppointemets: true, postedAppointements: true}
       });
 
       if (employee) {
