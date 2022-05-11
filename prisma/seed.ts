@@ -64,8 +64,8 @@ const appointments = [
     {
         id: 1,
         price: 350,
-        startDate: "YEAR-MONTH-15T16:00:00+00:0",
-        endDate: "YEAR-MONTH-15T17:00:00+00:00",
+        startDate: "2022-05-14T10:00:00",
+        endDate: "2022-05-14T16:00:00",
         title: "Kidney visit",
         description: "Vizite tek doktorri kam probleme me kidney",
         status: 2,
@@ -76,8 +76,8 @@ const appointments = [
     {
         id: 2,
         price: 350,
-        startDate: "YEAR-MONTH-18T20:30:00+00:00",
-        endDate: "YEAR-MONTH-18T21:30:00+00:00",
+        startDate: "2022-05-15T12:00:00",
+        endDate: "2022-05-15T17:00:00",
         title: "Cardiac visit",
         description: "Vizite tek doktorri kam probleme me zemren",
         status: 2,
