@@ -64,14 +64,26 @@ const appointments = [
     {
         id: 1,
         price: 350,
-        startDate: "11/05/2022",
-        endDate: "13/05/2022",
+        startDate: "YEAR-MONTH-09T16:00:00+00:0",
+        endDate: "YEAR-MONTH-09T17:00:00+00:00",
         title: "Kidney visit",
         description: "Vizite tek doktorri kam probleme me kidney",
         status: 2,
         user_id: 2,
         doctor_id: 1,
         category_id: 1
+    },
+    {
+        id: 2,
+        price: 350,
+        startDate: "YEAR-MONTH-18T10:30:00+00:00",
+        endDate: "YEAR-MONTH-18T20:30:00+00:00",
+        title: "Cardiac visit",
+        description: "Vizite tek doktorri kam probleme me zemren",
+        status: 2,
+        user_id: 2,
+        doctor_id: 1,
+        category_id: 2
     }
 ]
 
@@ -80,6 +92,11 @@ const categories = [
         id: 1,
         category_name: "Kidney",
         category_logo: "kidney.jpg"
+    },
+    {
+        id: 2,
+        category_name: "Zemra",
+        category_logo: "Zemra.jpg"
     }
 ]
 
