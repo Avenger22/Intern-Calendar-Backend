@@ -415,10 +415,11 @@ app.post('/appointements', async (req, res) => {
 
     // if (user?.isDoctor) {
     await prisma.appointement.create({
+      //@ts-ignore
       data: { price, startDate, endDate, title, description, status, user_id: user_id, doctor_id: doctor_id, category_id: category_id }
     })
 
-    const doctors = await prisma.user.findMany({
+    const doctor = await prisma.user.findMany({
 
       include: {
           acceptedAppointemets: true
@@ -426,14 +427,13 @@ app.post('/appointements', async (req, res) => {
 
       where: {
           //@ts-ignore
-          isDoctor: true
+          isDoctor: true,
+          id: doctor_id
       }
 
-  });
+    });
 
-
-
-    res.send(doctors)
+    res.send({doctorServer: doctor, patientServer: user})
 
     // } 
     
