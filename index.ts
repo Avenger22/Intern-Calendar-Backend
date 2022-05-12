@@ -392,28 +392,54 @@ app.get("/appointements/:id", async (req, res) => {
 
 });
 
-app.post('/appointement', async (req, res) => {
+app.post('/appointements', async (req, res) => {
 
-  const { price, startDate, endDate, title, description, status, category_id } = req.body
+  const { 
+    price, 
+    startDate, 
+    endDate, 
+    title, 
+    description, 
+    status, 
+    category_id, 
+    user_id, 
+    doctor_id 
+  } = req.body
 
-  const token = req.headers.authorization || ''
+  const token = req.headers.authorization
 
   try {
 
+    //@ts-ignore
     const user: any = await getUserFromToken(token)
 
-    if (user?.isDoctor) {
-      const project = await prisma.appointement.create({
-        data: { price, startDate, endDate, title, description, status, doctor_id: user.id, category_id: category_id }
-      })
+    // if (user?.isDoctor) {
+    await prisma.appointement.create({
+      data: { price, startDate, endDate, title, description, status, user_id: user_id, doctor_id: doctor_id, category_id: category_id }
+    })
 
-      res.send(project)
+    const doctors = await prisma.user.findMany({
 
-    } 
+      include: {
+          acceptedAppointemets: true
+      },
+
+      where: {
+          //@ts-ignore
+          isDoctor: true
+      }
+
+  });
+
+
+
+    res.send(doctors)
+
+    // } 
     
-    else {
-      res.status(401).send("You're not authorized to create a project")
-    }
+    // else {
+    //   res.status(401).send("You're not authorized to create a project")
+    // }
 
   }
 
@@ -424,7 +450,7 @@ app.post('/appointement', async (req, res) => {
 
 })
 
-app.patch('/appointement/:id', async (req, res) => {
+app.patch('/appointements/:id', async (req, res) => {
 
     const { user_id } = req.body
 
