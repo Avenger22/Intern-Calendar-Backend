@@ -471,6 +471,74 @@ app.patch('/appointements/:id', async (req, res) => {
     }
 
 })
+
+app.delete('/appointements/:id', async (req, res) => {
+
+  const id = Number(req.params.id)
+  // const doctor_id = Number(req.body.doctor_id)
+  // const user_id = Number(req.body.user_id)
+
+  // console.log(doctor_id, user_id)
+
+  // const token = req.headers.authorization
+
+  try {
+
+    //@ts-ignore
+    // const user: any = await getUserFromToken(token)
+
+    const appointement: any = await prisma.appointement.findFirst({
+
+      where: {
+        id
+      }
+
+    });
+
+    console.log(appointement)
+
+    const user = await prisma.user.findFirst({
+
+      include: { postedAppointements: { include: { normalUser: true } } },
+
+      where: {
+        //@ts-ignore
+        isDoctor: false,
+        id: appointement?.user_id
+      }
+
+    })
+
+    const doctor = await prisma.user.findFirst({
+
+      include: {
+          acceptedAppointemets: true
+      },
+
+      where: {
+          //@ts-ignore
+          isDoctor: true,
+          id: appointement?.doctor_id
+      }
+
+    });
+
+    await prisma.appointement.delete({ where: { id } })
+
+    console.log({doctorServer: doctor, patientServer: user})
+
+    if (user && doctor) {
+      res.send({doctorServer: doctor, patientServer: user})
+    }
+    
+  }
+
+  catch (err) {
+    //@ts-ignore
+    res.status(400).send({ error: err.message })
+  }
+
+})
 // #endregion
 
 // #region "Bids endpoints"
