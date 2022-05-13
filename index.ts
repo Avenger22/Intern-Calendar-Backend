@@ -413,13 +413,12 @@ app.post('/appointements', async (req, res) => {
     //@ts-ignore
     const user: any = await getUserFromToken(token)
 
-    // if (user?.isDoctor) {
     await prisma.appointement.create({
       //@ts-ignore
       data: { price, startDate, endDate, title, description, status, user_id: user_id, doctor_id: doctor_id, category_id: category_id }
     })
 
-    const doctor = await prisma.user.findMany({
+    const doctor = await prisma.user.findFirst({
 
       include: {
           acceptedAppointemets: true
@@ -433,13 +432,9 @@ app.post('/appointements', async (req, res) => {
 
     });
 
-    res.send({doctorServer: doctor, patientServer: user})
-
-    // } 
-    
-    // else {
-    //   res.status(401).send("You're not authorized to create a project")
-    // }
+    if (user && doctor) {
+      res.send({doctorServer: doctor, patientServer: user})
+    }
 
   }
 
