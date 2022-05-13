@@ -472,73 +472,54 @@ app.patch('/appointements/:id', async (req, res) => {
 
 })
 
-app.delete('/appointements/:id', async (req, res) => {
+app.delete("/appointements/:id", async (req, res) => {
 
-  const id = Number(req.params.id)
-  // const doctor_id = Number(req.body.doctor_id)
-  // const user_id = Number(req.body.user_id)
-
-  // console.log(doctor_id, user_id)
-
-  // const token = req.headers.authorization
+  const id = Number(req.params.id);
+  const token = req.headers.authorization;
 
   try {
 
-    //@ts-ignore
-    // const user: any = await getUserFromToken(token)
-
-    const appointement: any = await prisma.appointement.findFirst({
-
-      where: {
-        id
-      }
-
+    const appointement = await prisma.appointement.findUnique({
+      where: { id }
     });
 
-    console.log(appointement)
+    if (appointement && token) {
 
-    const user = await prisma.user.findFirst({
+      const appointement = await prisma.appointement.delete({
+        where: { id }
+      });
 
-      include: { postedAppointements: { include: { normalUser: true } } },
+      const updatedUser = await getUserFromToken(token as string);
 
-      where: {
-        //@ts-ignore
-        isDoctor: false,
-        id: appointement?.user_id
-      }
+      const updatedDoctor = await prisma.user.findUnique({
+        where: { id: appointement.doctor_id},
+        include: { acceptedAppointemets: true},
+      });
 
-    })
+      res.send({
+        msg: "Appointmentent deleted succesfully",
+        updatedUser,
+        updatedDoctor
+      });
 
-    const doctor = await prisma.user.findFirst({
+    } 
+    
+    else {
 
-      include: {
-          acceptedAppointemets: true
-      },
+      throw Error(
+        "You are not authorized or appointment with this Id doesnt exist!"
+      );
 
-      where: {
-          //@ts-ignore
-          isDoctor: true,
-          id: appointement?.doctor_id
-      }
-
-    });
-
-    await prisma.appointement.delete({ where: { id } })
-
-    console.log({doctorServer: doctor, patientServer: user})
-
-    if (user && doctor) {
-      res.send({doctorServer: doctor, patientServer: user})
     }
     
-  }
-
+  } 
+  
   catch (err) {
     //@ts-ignore
-    res.status(400).send({ error: err.message })
+    res.status(400).send({ error: err.message });
   }
 
-})
+});
 // #endregion
 
 // #region "Bids endpoints"
