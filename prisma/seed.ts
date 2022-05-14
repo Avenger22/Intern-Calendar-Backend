@@ -68,7 +68,7 @@ const appointments = [
         endDate: "2022-05-14T16:00:00",
         title: "Kidney visit",
         description: "Vizite tek doktorri kam probleme me kidney",
-        status: 2,
+        status: "pending",
         user_id: 2,
         doctor_id: 1,
         category_id: 1
@@ -80,7 +80,7 @@ const appointments = [
         endDate: "2022-05-15T17:00:00",
         title: "Cardiac visit",
         description: "Vizite tek doktorri kam probleme me zemren",
-        status: 2,
+        status: "approved",
         user_id: 2,
         doctor_id: 1,
         category_id: 2
@@ -126,6 +126,7 @@ async function createStuff() {
     await prisma.appointement.deleteMany()
 
     for (const appointment of appointments) {
+        //@ts-ignore
         await prisma.appointement.create({ data: appointment });
     }
 

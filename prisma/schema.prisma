@@ -47,7 +47,7 @@ model Appointement {
   endDate     String   @default("")
   title       String
   description String
-  status      Int
+  status      String   @default("pending")
   
   normalUser  User?    @relation("normalUser", fields: [user_id], references: [id])
   user_id     Int?
