@@ -410,9 +410,6 @@ app.post('/appointements', async (req, res) => {
 
   try {
 
-    //@ts-ignore
-    const user: any = await getUserFromToken(token)
-
     await prisma.appointement.create({
       //@ts-ignore
       data: { price, startDate, endDate, title, description, status, user_id: user_id, doctor_id: doctor_id, category_id: category_id }
@@ -432,7 +429,10 @@ app.post('/appointements', async (req, res) => {
 
     });
 
-    if (user && doctor) {
+    //@ts-ignore
+    const user: any = await getUserFromToken(token)
+
+    if (token && doctor) {
       res.send({doctorServer: doctor, patientServer: user})
     }
 
@@ -445,22 +445,37 @@ app.post('/appointements', async (req, res) => {
 
 })
 
-app.patch('/appointements/:id', async (req, res) => {
+app.put('/appointements/:id', async (req, res) => {
 
-    const { user_id } = req.body
+    const { status, doctor_id } = req.body
+
+    const token = req.headers.authorization
 
     const id = Number(req.params.id)
 
     try {
 
-      let project = await prisma.appointement.update({ where: { id }, data: { user_id } })
+      await prisma.appointement.update({ where: { id }, data: { status } })
       
-      if (project) {
-        res.send(project)
-      } 
-      
-      else {
-        res.status(404).send({ error: "Project not found" })
+      const doctor = await prisma.user.findFirst({
+
+        include: {
+            acceptedAppointemets: true
+        },
+  
+        where: {
+          //@ts-ignore
+          isDoctor: true,
+          id: doctor_id
+        }
+  
+      });
+
+      //@ts-ignore
+      const user: any = await getUserFromToken(token)
+  
+      if (token && doctor) {
+        res.send({doctorServer: doctor, patientServer: user})
       }
 
     } 
