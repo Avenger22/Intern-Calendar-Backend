@@ -84,6 +84,18 @@ const appointments = [
         user_id: 2,
         doctor_id: 1,
         category_id: 2
+    },
+    {
+        id: 3,
+        price: 350,
+        startDate: "2022-05-27T12:00:00",
+        endDate: "2022-05-27T17:00:00",
+        title: "Thyroid visit",
+        description: "Vizite tek doktorri kam probleme me tiroidet",
+        status: "pending",
+        user_id: 3,
+        doctor_id: 1,
+        category_id: 2
     }
 ]
 
