@@ -27,6 +27,8 @@ model User {
 
   postedAppointements  Appointement[] @relation("normalUser")
   acceptedAppointemets Appointement[] @relation("doctor")
+  freeAppointements    Appointement[] @relation("doctorEvent")
+
   bids                 Bid[]
 }
 
@@ -52,11 +54,14 @@ model Appointement {
   normalUser  User?    @relation("normalUser", fields: [user_id], references: [id])
   user_id     Int?
   
-  doctor      User     @relation("doctor", fields: [doctor_id], references: [id])
-  doctor_id   Int
+  doctor      User?     @relation("doctor", fields: [doctor_id], references: [id])
+  doctor_id   Int?
+
+  doctorFreePost      User?     @relation("doctorEvent", fields: [doctor_post_id], references: [id])
+  doctor_post_id      Int?      
   
-  category    Category @relation(fields: [category_id], references: [id])
-  category_id Int
+  category      Category? @relation(fields: [category_id], references: [id])
+  category_id   Int?
 
   bids        Bid[]
 }

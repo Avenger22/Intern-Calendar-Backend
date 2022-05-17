@@ -46,7 +46,7 @@ async function getUserFromToken(token: string) {
     const user = await prisma.user.findUnique({
         // @ts-ignore
         where: { id: data.id },
-        include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true }
+        include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true, freeAppointements: true }
     });
 
     return user;
@@ -104,7 +104,7 @@ app.post('/login', async (req, res) => {
 
     const user: any = await prisma.user.findFirst({
       where: { email: emailLogin},
-      include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true }
+      include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true, freeAppointements: true }
     });
 
     if (user?.password === undefined || user?.password === null || !user) {
@@ -222,7 +222,8 @@ app.get('/doctors', async (req, res) => {
         const doctors = await prisma.user.findMany({
 
             include: {
-                acceptedAppointemets: true
+                acceptedAppointemets: true,
+                freeAppointements: true
             },
 
             where: {
@@ -403,31 +404,58 @@ app.post('/appointements', async (req, res) => {
     status, 
     category_id, 
     user_id, 
-    doctor_id 
+    doctor_id,
+    doctor_post_id
   } = req.body
 
   const token = req.headers.authorization
 
   try {
 
-    await prisma.appointement.create({
+    const createdAppointement = await prisma.appointement.create({
       //@ts-ignore
-      data: { price, startDate, endDate, title, description, status, user_id: user_id, doctor_id: doctor_id, category_id: category_id }
+      data: { price, startDate, endDate, title, description, status, user_id: user_id, doctor_id: doctor_id, category_id: category_id, doctor_post_id: doctor_post_id }
     })
 
-    const doctor = await prisma.user.findFirst({
+    let doctor
 
-      include: {
-          acceptedAppointemets: true
-      },
+    if (doctor_id === null && user_id === null) {
 
-      where: {
-          //@ts-ignore
-          isDoctor: true,
-          id: doctor_id
-      }
+      doctor = await prisma.user.findFirst({
 
-    });
+        include: {
+            acceptedAppointemets: true,
+            freeAppointements: true
+        },
+  
+        where: {
+            //@ts-ignore
+            isDoctor: true,
+            id: doctor_post_id
+        }
+  
+      });
+
+    }
+
+    else {
+
+      doctor = await prisma.user.findFirst({
+
+        include: {
+            acceptedAppointemets: true,
+            freeAppointements: true
+        },
+  
+        where: {
+            //@ts-ignore
+            isDoctor: true,
+            id: doctor_id
+        }
+  
+      });
+
+    }
 
     //@ts-ignore
     const user: any = await getUserFromToken(token)
@@ -460,7 +488,8 @@ app.put('/appointements/:id', async (req, res) => {
       const doctor = await prisma.user.findFirst({
 
         include: {
-            acceptedAppointemets: true
+            acceptedAppointemets: true,
+            freeAppointements: true
         },
   
         where: {
@@ -489,26 +518,33 @@ app.put('/appointements/:id', async (req, res) => {
 
 app.delete("/appointements/:id", async (req, res) => {
 
-  const id = Number(req.params.id);
+  const idParam = Number(req.params.id);
   const token = req.headers.authorization;
 
   try {
 
-    const appointement = await prisma.appointement.findUnique({
-      where: { id }
+    const appointementFirst = await prisma.appointement.findFirst({
+      where: { id: idParam }
     });
 
-    if (appointement && token) {
+    if (appointementFirst && token) {
 
-      const appointement = await prisma.appointement.delete({
-        where: { id }
+      const appointementLast = await prisma.appointement.delete({
+        where: { id: idParam }
       });
 
       const updatedUser = await getUserFromToken(token as string);
 
       const updatedDoctor = await prisma.user.findUnique({
-        where: { id: appointement.doctor_id},
-        include: { acceptedAppointemets: true},
+
+        //@ts-ignore
+        where: { id: appointementLast.doctor_id},
+        
+        include: { 
+          acceptedAppointemets: true, 
+          freeAppointements: true
+        }
+
       });
 
       res.send({
@@ -535,6 +571,50 @@ app.delete("/appointements/:id", async (req, res) => {
   }
 
 });
+
+// app.put("/events/:id", async (req, res) => {
+
+//   const id = Number(req.params.id);
+
+//   const token = req.headers.authorization;
+
+//   const { status } = req.body;
+
+//   try {
+
+//     const appointement = await prisma.appointement.findUnique({ where: { id } });
+
+//     if (appointement && token) {
+
+//       const updatedAppointement = await prisma.appointement.update({
+//         where: { id },
+//         data: { status },
+//         include: { doctor: true, normalUser: true, doctorFreePost: true },
+//       });
+
+//       const updatedUser = await getUserFromToken(token as string);
+
+//       res.send({ updatedAppointement, updatedUser });
+
+//     } 
+    
+//     else {
+
+//       throw Error(
+//         "You are not authorized, or Appointement with this Id doesnt exist!"
+//       );
+
+//     }
+
+//   } 
+  
+//   catch (err) {
+//     //@ts-ignore
+//     res.status(400).send({ error: err.message });
+//   }
+
+// });
+
 // #endregion
 
 // #region "Bids endpoints"
