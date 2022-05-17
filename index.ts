@@ -40,16 +40,16 @@ function createToken(id: number) {
 
 async function getUserFromToken(token: string) {
 
-    //@ts-ignore
-    const data = jwt.verify(token, process.env.MY_SECRET);
+  //@ts-ignore
+  const data = jwt.verify(token, process.env.MY_SECRET);
 
-    const user = await prisma.user.findUnique({
-        // @ts-ignore
-        where: { id: data.id },
-        include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true, freeAppointements: true }
-    });
+  const user = await prisma.user.findUnique({
+      // @ts-ignore
+      where: { id: data.id },
+      include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true, freeAppointements: true }
+  });
 
-    return user;
+  return user;
 
 }
 
@@ -95,41 +95,41 @@ app.post('/sign-up', async (req, res) => {
 
 app.post('/login', async (req, res) => {
 
-    const { emailLogin, password } = req.body;
+  const { emailLogin, password } = req.body;
 
-    // const emailInput = emailLogin
+  // const emailInput = emailLogin
 
-    // console.log(emailLogin)
-    // console.log(password)
+  // console.log(emailLogin)
+  // console.log(password)
 
-    const user: any = await prisma.user.findFirst({
-      where: { email: emailLogin},
-      include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true, freeAppointements: true }
-    });
+  const user: any = await prisma.user.findFirst({
+    where: { email: emailLogin},
+    include: { postedAppointements: { include: { normalUser: true } }, acceptedAppointemets: true, freeAppointements: true }
+  });
 
-    if (user?.password === undefined || user?.password === null || !user) {
-      res.status(404).send({ user, token: "" });
-    }
+  if (user?.password === undefined || user?.password === null || !user) {
+    res.status(404).send({ user, token: "" });
+  }
 
+  else {
+
+    // @ts-ignore
+    const passwordMatches = bcrypt.compareSync(password, user.password);
+
+    // console.log(passwordMatches)
+    
+    if (user && passwordMatches) {
+      res.send({ user, token: createToken(user.id) });
+    } 
+    
     else {
-
-      // @ts-ignore
-      const passwordMatches = bcrypt.compareSync(password, user.password);
-
-      // console.log(passwordMatches)
-      
-      if (user && passwordMatches) {
-        res.send({ user, token: createToken(user.id) });
-      } 
-      
-      else {
-        // console.log(user)
-        res.status(404).send({ error: "user or password incorrect" });
-      }
-
-      //weird bug like only 1 user logs in
-
+      // console.log(user)
+      res.status(404).send({ error: "user or password incorrect" });
     }
+
+    //weird bug like only 1 user logs in
+
+  }
 
 });
 
