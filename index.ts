@@ -521,36 +521,52 @@ app.delete("/appointements/:id", async (req, res) => {
   const idParam = Number(req.params.id);
   const token = req.headers.authorization;
 
+  console.log(idParam, token)
+
   try {
 
-    const appointementFirst = await prisma.appointement.findFirst({
+    const appointement = await prisma.appointement.findUnique({
       where: { id: idParam }
     });
 
-    if (appointementFirst && token) {
+    console.log(appointement)
 
-      const appointementLast = await prisma.appointement.delete({
+    if (appointement && token) {
+
+      const appointement = await prisma.appointement.delete({
         where: { id: idParam }
       });
 
+      console.log(appointement)
+      
       const updatedUser = await getUserFromToken(token as string);
 
-      const updatedDoctor = await prisma.user.findUnique({
+      let updatedDoctor;
 
-        //@ts-ignore
-        where: { id: appointementLast.doctor_id},
-        
-        include: { 
-          acceptedAppointemets: true, 
-          freeAppointements: true
-        }
+      if (appointement.doctor_post_id !== null) {
 
-      });
+        updatedDoctor = await prisma.user.findUnique({
+          //@ts-ignore
+          where: { id: appointement.doctor_post_id },
+          include: { acceptedAppointemets: true, freeAppointements: true }
+        });
+
+      } 
+      
+      else {
+
+        updatedDoctor = await prisma.user.findUnique({
+          //@ts-ignore
+          where: { id: appointement.doctor_id },
+          include: { acceptedAppointemets: true, freeAppointements: true }
+        });
+
+      }
 
       res.send({
-        msg: "Appointmentent deleted succesfully",
+        msg: "Event deleted succesfully",
         updatedUser,
-        updatedDoctor
+        updatedDoctor,
       });
 
     } 
@@ -558,11 +574,11 @@ app.delete("/appointements/:id", async (req, res) => {
     else {
 
       throw Error(
-        "You are not authorized or appointment with this Id doesnt exist!"
+        "You are not authorized, or Event with this Id doesnt exist!"
       );
 
     }
-    
+
   } 
   
   catch (err) {
@@ -571,50 +587,6 @@ app.delete("/appointements/:id", async (req, res) => {
   }
 
 });
-
-// app.put("/events/:id", async (req, res) => {
-
-//   const id = Number(req.params.id);
-
-//   const token = req.headers.authorization;
-
-//   const { status } = req.body;
-
-//   try {
-
-//     const appointement = await prisma.appointement.findUnique({ where: { id } });
-
-//     if (appointement && token) {
-
-//       const updatedAppointement = await prisma.appointement.update({
-//         where: { id },
-//         data: { status },
-//         include: { doctor: true, normalUser: true, doctorFreePost: true },
-//       });
-
-//       const updatedUser = await getUserFromToken(token as string);
-
-//       res.send({ updatedAppointement, updatedUser });
-
-//     } 
-    
-//     else {
-
-//       throw Error(
-//         "You are not authorized, or Appointement with this Id doesnt exist!"
-//       );
-
-//     }
-
-//   } 
-  
-//   catch (err) {
-//     //@ts-ignore
-//     res.status(400).send({ error: err.message });
-//   }
-
-// });
-
 // #endregion
 
 // #region "Bids endpoints"

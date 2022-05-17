@@ -51,16 +51,16 @@ model Appointement {
   description String
   status      String   @default("pending")
   
-  normalUser  User?    @relation("normalUser", fields: [user_id], references: [id])
+  normalUser  User?    @relation("normalUser", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_id     Int?
   
-  doctor      User?     @relation("doctor", fields: [doctor_id], references: [id])
+  doctor      User?     @relation("doctor", fields: [doctor_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   doctor_id   Int?
 
-  doctorFreePost      User?     @relation("doctorEvent", fields: [doctor_post_id], references: [id])
+  doctorFreePost      User?     @relation("doctorEvent", fields: [doctor_post_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   doctor_post_id      Int?      
   
-  category      Category? @relation(fields: [category_id], references: [id])
+  category      Category? @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   category_id   Int?
 
   bids        Bid[]
@@ -69,11 +69,11 @@ model Appointement {
 model Bid {
   id           Int          @id @default(autoincrement())
 
-  appointement  Appointement @relation(fields: [appointment_id], references: [id])
+  appointement  Appointement @relation(fields: [appointment_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   appointment_id   Int
   
   bids         Int
 
-  normalUser   User         @relation(fields: [user_id], references: [id])
+  normalUser   User         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_id      Int
 }
