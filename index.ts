@@ -516,6 +516,73 @@ app.put('/appointements/:id', async (req, res) => {
 
 })
 
+app.patch('/appointements/:id', async (req, res) => {
+
+  const {
+    price,
+    startDate,
+    endDate,
+    title,
+    description,
+    status,
+    user_id,
+    doctor_id,
+    doctor_post_id,
+    category_id
+   } = req.body
+
+  const token = req.headers.authorization
+
+  const id = Number(req.params.id)
+
+  const updatedAppointement = {
+    price,
+    startDate,
+    endDate,
+    title,
+    description,
+    status,
+    user_id,
+    doctor_id,
+    doctor_post_id,
+    category_id
+  }
+
+  try {
+
+    await prisma.appointement.update({ where: { id }, data: updatedAppointement })
+    
+    const doctor = await prisma.user.findFirst({
+
+      include: {
+          acceptedAppointemets: true,
+          freeAppointements: true
+      },
+
+      where: {
+        //@ts-ignore
+        isDoctor: true,
+        id: doctor_id
+      }
+
+    });
+
+    //@ts-ignore
+    const user: any = await getUserFromToken(token)
+
+    if (token && doctor) {
+      res.send({doctorServer: doctor, patientServer: user})
+    }
+
+  } 
+  
+  catch (err) {
+    //@ts-ignore
+    res.status(400).send({ error: err.message })
+  }
+
+})
+
 app.delete("/appointements/:id", async (req, res) => {
 
   const idParam = Number(req.params.id);
