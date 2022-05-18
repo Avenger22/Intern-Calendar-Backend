@@ -457,11 +457,25 @@ app.post('/appointements', async (req, res) => {
 
     }
 
+    const doctors = await prisma.user.findMany({
+
+      include: {
+          acceptedAppointemets: true,
+          freeAppointements: true
+      },
+
+      where: {
+          //@ts-ignore
+          isDoctor: true
+      }
+
+    });
+
     //@ts-ignore
     const user: any = await getUserFromToken(token)
 
     if (token && doctor) {
-      res.send({doctorServer: doctor, patientServer: user})
+      res.send({doctorServer: doctor, patientServer: user, doctorsServer: doctors})
     }
 
   }
@@ -500,11 +514,25 @@ app.put('/appointements/:id', async (req, res) => {
   
       });
 
+      const doctors = await prisma.user.findMany({
+
+        include: {
+            acceptedAppointemets: true,
+            freeAppointements: true
+        },
+
+        where: {
+            //@ts-ignore
+            isDoctor: true
+        }
+
+      });
+
       //@ts-ignore
       const user: any = await getUserFromToken(token)
   
       if (token && doctor) {
-        res.send({doctorServer: doctor, patientServer: user})
+        res.send({ doctorServer: doctor, patientServer: user, doctorsServer: doctors })
       }
 
     } 
@@ -567,11 +595,25 @@ app.patch('/appointements/:id', async (req, res) => {
 
     });
 
+    const doctors = await prisma.user.findMany({
+
+      include: {
+          acceptedAppointemets: true,
+          freeAppointements: true
+      },
+
+      where: {
+          //@ts-ignore
+          isDoctor: true
+      }
+
+    });
+
     //@ts-ignore
     const user: any = await getUserFromToken(token)
 
     if (token && doctor) {
-      res.send({doctorServer: doctor, patientServer: user})
+      res.send({ doctorServer: doctor, patientServer: user, doctorsServer: doctors })
     }
 
   } 
@@ -630,10 +672,25 @@ app.delete("/appointements/:id", async (req, res) => {
 
       }
 
+      const updatedDoctors = await prisma.user.findMany({
+
+        include: {
+            acceptedAppointemets: true,
+            freeAppointements: true
+        },
+  
+        where: {
+            //@ts-ignore
+            isDoctor: true
+        }
+  
+      });
+
       res.send({
         msg: "Event deleted succesfully",
         updatedUser,
         updatedDoctor,
+        updatedDoctors
       });
 
     } 
