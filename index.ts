@@ -576,9 +576,11 @@ app.patch('/appointements/:id', async (req, res) => {
 
   try {
 
-    const findAppointement = await prisma.appointement.findFirst( { where: {startDate: startDate } } )
+    const findAppointement = await prisma.appointement.findFirst( { where: { startDate: startDate } } )
     
-    if (findAppointement) {
+    console.log(findAppointement)
+
+    if (findAppointement !== null || findAppointement !== undefined) {
       res.status(400).send({ error: "Cant have in the same date an appointement" })
     }
 
@@ -621,6 +623,7 @@ app.patch('/appointements/:id', async (req, res) => {
       if (token && doctor) {
         res.send({ doctorServer: doctor, patientServer: user, doctorsServer: doctors })
       }
+
     }
 
   } 
