@@ -576,11 +576,16 @@ app.patch('/appointements/:id', async (req, res) => {
 
   try {
 
+    // const startHour  = Number(startDate.substring(11, 13))
+    // const endHour = Number(endDate.substring(11, 13))
+
+    // const checkHour = endHour - startHour
+
     const findAppointement = await prisma.appointement.findFirst( { where: { startDate: startDate } } )
     
     console.log(findAppointement)
 
-    if (findAppointement !== null || findAppointement !== undefined) {
+    if (findAppointement) {
       res.status(400).send({ error: "Cant have in the same date an appointement" })
     }
 
