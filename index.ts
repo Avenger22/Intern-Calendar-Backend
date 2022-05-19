@@ -127,8 +127,6 @@ app.post('/login', async (req, res) => {
       res.status(404).send({ error: "user or password incorrect" });
     }
 
-    //weird bug like only 1 user logs in
-
   }
 
 });
@@ -578,42 +576,51 @@ app.patch('/appointements/:id', async (req, res) => {
 
   try {
 
-    await prisma.appointement.update({ where: { id }, data: updatedAppointement })
+    const findAppointement = await prisma.appointement.findFirst( { where: {startDate: startDate } } )
     
-    const doctor = await prisma.user.findFirst({
+    if (findAppointement) {
+      res.status(400).send({ error: "Cant have in the same date an appointement" })
+    }
 
-      include: {
-          acceptedAppointemets: true,
-          freeAppointements: true
-      },
+    else {
 
-      where: {
-        //@ts-ignore
-        isDoctor: true,
-        id: doctor_id
-      }
+      await prisma.appointement.update({ where: { id }, data: updatedAppointement })
+      
+      const doctor = await prisma.user.findFirst({
 
-    });
+        include: {
+            acceptedAppointemets: true,
+            freeAppointements: true
+        },
 
-    const doctors = await prisma.user.findMany({
-
-      include: {
-          acceptedAppointemets: true,
-          freeAppointements: true
-      },
-
-      where: {
+        where: {
           //@ts-ignore
-          isDoctor: true
+          isDoctor: true,
+          id: doctor_id
+        }
+
+      });
+
+      const doctors = await prisma.user.findMany({
+
+        include: {
+            acceptedAppointemets: true,
+            freeAppointements: true
+        },
+
+        where: {
+            //@ts-ignore
+            isDoctor: true
+        }
+
+      });
+
+      //@ts-ignore
+      const user: any = await getUserFromToken(token)
+
+      if (token && doctor) {
+        res.send({ doctorServer: doctor, patientServer: user, doctorsServer: doctors })
       }
-
-    });
-
-    //@ts-ignore
-    const user: any = await getUserFromToken(token)
-
-    if (token && doctor) {
-      res.send({ doctorServer: doctor, patientServer: user, doctorsServer: doctors })
     }
 
   } 
@@ -630,7 +637,7 @@ app.delete("/appointements/:id", async (req, res) => {
   const idParam = Number(req.params.id);
   const token = req.headers.authorization;
 
-  console.log(idParam, token)
+  // console.log(idParam, token)
 
   try {
 
@@ -638,7 +645,7 @@ app.delete("/appointements/:id", async (req, res) => {
       where: { id: idParam }
     });
 
-    console.log(appointement)
+    // console.log(appointement)
 
     if (appointement && token) {
 
@@ -646,7 +653,7 @@ app.delete("/appointements/:id", async (req, res) => {
         where: { id: idParam }
       });
 
-      console.log(appointement)
+      // console.log(appointement)
       
       const updatedUser = await getUserFromToken(token as string);
 
