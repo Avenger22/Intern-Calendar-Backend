@@ -574,16 +574,20 @@ app.patch('/appointements/:id', async (req, res) => {
     category_id
   }
 
+  const finalStartDate = startDate + ":00"
+
   try {
 
-    // const startHour  = Number(startDate.substring(11, 13))
-    // const endHour = Number(endDate.substring(11, 13))
+    const startHour  = Number(startDate.substring(11, 13))
+    const endHour = Number(endDate.substring(11, 13))
 
-    // const checkHour = endHour - startHour
+    const checkHour = endHour - startHour
 
-    const findAppointement = await prisma.appointement.findFirst( { where: { startDate: startDate } } )
+    console.log(startDate, endDate)
+
+    const findAppointement = await prisma.appointement.findFirst( { where: { startDate: finalStartDate } } )
     
-    console.log(findAppointement)
+    console.log(findAppointement, startHour, endHour, checkHour)
 
     if (findAppointement) {
       res.status(400).send({ error: "Cant have in the same date an appointement" })
@@ -591,42 +595,50 @@ app.patch('/appointements/:id', async (req, res) => {
 
     else {
 
-      await prisma.appointement.update({ where: { id }, data: updatedAppointement })
-      
-      const doctor = await prisma.user.findFirst({
+      if(checkHour === 1) {
 
-        include: {
-            acceptedAppointemets: true,
-            freeAppointements: true
-        },
+        await prisma.appointement.update({ where: { id }, data: updatedAppointement })
+        
+        const doctor = await prisma.user.findFirst({
 
-        where: {
-          //@ts-ignore
-          isDoctor: true,
-          id: doctor_id
-        }
+          include: {
+              acceptedAppointemets: true,
+              freeAppointements: true
+          },
 
-      });
-
-      const doctors = await prisma.user.findMany({
-
-        include: {
-            acceptedAppointemets: true,
-            freeAppointements: true
-        },
-
-        where: {
+          where: {
             //@ts-ignore
-            isDoctor: true
+            isDoctor: true,
+            id: doctor_id
+          }
+
+        });
+
+        const doctors = await prisma.user.findMany({
+
+          include: {
+              acceptedAppointemets: true,
+              freeAppointements: true
+          },
+
+          where: {
+              //@ts-ignore
+              isDoctor: true
+          }
+
+        });
+
+        //@ts-ignore
+        const user: any = await getUserFromToken(token)
+
+        if (token && doctor) {
+          res.send({ doctorServer: doctor, patientServer: user, doctorsServer: doctors })
         }
 
-      });
+      }
 
-      //@ts-ignore
-      const user: any = await getUserFromToken(token)
-
-      if (token && doctor) {
-        res.send({ doctorServer: doctor, patientServer: user, doctorsServer: doctors })
+      else {
+        res.status(400).send({ error: "You cannot have more than 1 hour and half booking time" })
       }
 
     }
